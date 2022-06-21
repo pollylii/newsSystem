@@ -1,6 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Table, Tag, Modal, notification, Popover, Switch } from 'antd'
-import axios from 'axios'
+import {
+    fetchRightTreeListApi,
+    delRightApi,
+    delRightChildrenApi,
+    patchRightApi,
+    patchRightChildrenApi
+} from '@/apis/rightListApi'
 import {
     EditOutlined,
     DeleteOutlined,
@@ -13,7 +19,7 @@ export default function RightList() {
     const [loading, setLoading] = useState(false);
     useEffect(() => {
         setLoading(true);
-        axios.get("http://localhost:5000/rights?_embed=children").then(res => {
+        fetchRightTreeListApi.then(res => {
             const dataList = res.data
             dataList.forEach(item => {
                 if (item.children?.length === 0) {
@@ -71,13 +77,9 @@ export default function RightList() {
         setdataSource([...dataSource])
 
         if (item.grade === 1) {
-            axios.patch(`http://localhost:5000/rights/${item.id}`, {
-                pagepermisson: item.pagepermisson
-            })
+            patchRightApi((item.id), { pagepermisson: item.pagepermisson })
         } else {
-            axios.patch(`http://localhost:5000/children/${item.id}`, {
-                pagepermisson: item.pagepermisson
-            })
+            patchRightChildrenApi((item.id), { pagepermisson: item.pagepermisson })
         }
     }
 
@@ -104,12 +106,12 @@ export default function RightList() {
         // 当前页面同步状态 + 后端同步
         if (item.grade === 1) {
             setdataSource(dataSource.filter(data => data.id !== item.id))
-            axios.delete(`http://localhost:5000/rights/${item.id}`)
+            delRightApi(item.id)
         } else {
             let list = dataSource.filter(data => data.id === item.rightId)
             list[0].children = list[0].children.filter(data => data.id !== item.id)
             setdataSource([...dataSource])
-            axios.delete(`http://localhost:5000/children/${item.id}`)
+            delRightChildrenApi(item.id)
         }
     }
     return (

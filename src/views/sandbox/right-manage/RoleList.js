@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react'
 import { Button, Table, Modal, notification, Tree } from 'antd'
-import axios from 'axios'
+import { fetchRoleListApi, delRoleApi, patchRoleApi } from '@/apis/rolesApi'
+import { fetchRightTreeListApi } from '@/apis/rightListApi'
 import {
     UnorderedListOutlined,
     DeleteOutlined,
@@ -17,7 +18,7 @@ export default function RoleList() {
     const [isModalVisible, setisModalVisible] = useState(false);
     useEffect(() => {
         setLoading(true);
-        axios.get("http://localhost:5000/roles").then(res => {
+        fetchRoleListApi.then(res => {
             const dataList = res.data
             dataList.forEach(item => {
                 if (item.children?.length === 0) {
@@ -29,7 +30,7 @@ export default function RoleList() {
         })
     }, [])
     useEffect(() => {
-        axios.get("http://localhost:5000/rights?_embed=children").then(res => {
+        fetchRightTreeListApi.then(res => {
             const dataList = res.data
             setRightList(dataList)
         })
@@ -92,7 +93,7 @@ export default function RoleList() {
     const deleteMethod = (item) => {
         // 当前页面同步状态 + 后端同步
         setdataSource(dataSource.filter(data => data.id !== item.id))
-        axios.delete(`http://localhost:5000/roles/${item.id}`)
+        delRoleApi(item.id)
     }
     const handleOk = () => {
         setisModalVisible(false)
@@ -106,7 +107,7 @@ export default function RoleList() {
             }
             return item
         }))
-        axios.patch(`http://localhost:5000/roles/${currentId}`, { rights: currentRights })
+        patchRoleApi((currentId), { rights: currentRights })
     }
     const handleCancel = () => {
         setisModalVisible(false)
