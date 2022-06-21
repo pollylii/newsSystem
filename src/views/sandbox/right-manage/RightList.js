@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react'
-import { Button, Table, Tag, Modal, notification } from 'antd'
+import { Button, Table, Tag, Modal, notification, Popover, Switch } from 'antd'
 import axios from 'axios'
 import {
     EditOutlined,
@@ -10,15 +10,18 @@ import {
 const { confirm } = Modal
 export default function RightList() {
     const [dataSource, setdataSource] = useState([])
+    const [loading, setLoading] = useState(false);
     useEffect(() => {
+        setLoading(true);
         axios.get("http://localhost:5000/rights?_embed=children").then(res => {
             const dataList = res.data
             dataList.forEach(item => {
-                if (item.children.length === 0) {
+                if (item.children?.length === 0) {
                     item.children = ""
                 }
             })
             setdataSource(dataList)
+            setLoading(false);
         })
     }, [])
 
@@ -45,7 +48,12 @@ export default function RightList() {
             render: (item) => {
                 return (
                     <div>
-                        <Button type="primary" ghost shape="circle" icon={<EditOutlined />} />
+                        {/* <Button type="primary" ghost shape="circle" icon={<EditOutlined />} /> */}
+                        <Popover
+                            content={<div style={{ textAlign: "center" }}><Switch checked={item.pagepermisson} onChange={() => switchMethod(item)}></Switch></div>}
+                            title="页面配置项" trigger={item.pagepermisson === undefined ? '' : 'click'}>
+                            <Button type="primary" shape="circle" icon={<EditOutlined />} disabled={item.pagepermisson === undefined} />
+                        </Popover>
                         &nbsp;&nbsp;&nbsp;&nbsp;
                         <Button type="dashed" danger shape="circle" icon={<DeleteOutlined />}
                             onClick={() => confirmMethod(item)}
@@ -55,6 +63,23 @@ export default function RightList() {
             },
         },
     ];
+
+    // 该菜单是否出现在左侧菜单
+    const switchMethod = (item) => {
+        item.pagepermisson = item.pagepermisson === 1 ? 0 : 1
+        // console.log(item)
+        setdataSource([...dataSource])
+
+        if (item.grade === 1) {
+            axios.patch(`http://localhost:5000/rights/${item.id}`, {
+                pagepermisson: item.pagepermisson
+            })
+        } else {
+            axios.patch(`http://localhost:5000/children/${item.id}`, {
+                pagepermisson: item.pagepermisson
+            })
+        }
+    }
 
     const confirmMethod = (item) => {
         confirm({
@@ -90,9 +115,7 @@ export default function RightList() {
     return (
         <div>
             <Table dataSource={dataSource} columns={columns}
-                pagination={{
-                    pageSize: 5,
-                }}
+                pagination={{ pageSize: 5 }} loading={loading}
             />;
         </div>
     )
