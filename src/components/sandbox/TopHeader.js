@@ -1,25 +1,30 @@
 import React, { useState } from 'react'
-import { Layout, Dropdown,Menu ,Avatar} from 'antd';
+import { Layout, Dropdown, Menu, Avatar } from 'antd';
 import {
     MenuUnfoldOutlined,
     MenuFoldOutlined,
     UserOutlined
 } from '@ant-design/icons';
+import { withRouter } from 'react-router-dom';
 
 const { Header } = Layout;
 
-export default function TopHeader() {
+const TopHeader = (props) => {
     const [collapsed, setCollapsed] = useState(false)
     const changeCollapsed = () => {
         setCollapsed(!collapsed)
     }
 
+    const { role: { roleName }, username } = JSON.parse(localStorage.getItem('token'))
     const menu = (
         <Menu>
-            <Menu.Item>
-                超级管理员
+            <Menu.Item key={1}>
+                {roleName}
             </Menu.Item>
-            <Menu.Item danger>退出</Menu.Item>
+            <Menu.Item key={2} danger onClick={() => {
+                localStorage.removeItem('token')
+                props.history.replace('/login')
+            }}>退出</Menu.Item>
         </Menu>
     );
 
@@ -30,7 +35,7 @@ export default function TopHeader() {
             }
 
             <div style={{ float: "right" }}>
-                <span>欢迎admin回来</span>
+                <span>欢迎<span style={{ color: '#1890FF', fontWeight: 'bold' }}>{username}</span>回来</span>
                 <Dropdown overlay={menu}>
                     <Avatar size="large" icon={<UserOutlined />} />
                 </Dropdown>
@@ -39,3 +44,4 @@ export default function TopHeader() {
 
     )
 }
+export default withRouter(TopHeader)

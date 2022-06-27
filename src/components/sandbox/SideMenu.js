@@ -1,7 +1,7 @@
-import React,{useEffect,useState} from 'react'
+import React, { useEffect, useState } from 'react'
 import { Layout, Menu } from 'antd';
 import './index.css'
-import {withRouter} from 'react-router-dom'
+import { withRouter } from 'react-router-dom'
 import {
   HomeOutlined,
   UserOutlined,
@@ -56,59 +56,59 @@ const { SubMenu } = Menu
 //   }
 // ]
 const iconList = {
-  "/home":<HomeOutlined />,
-  "/user-manage":<UserOutlined />,
-  "/user-manage/list":<UserOutlined />,
-  "/right-manage":<PicRightOutlined />,
-  "/right-manage/role/list":<UsergroupDeleteOutlined />,
-  "/right-manage/right/list":<AppstoreOutlined />,
-  "/news-manage":<MessageOutlined />,
-  "/news-manage/add":<EditOutlined />,
-  "/news-manage/draft":<CloseCircleOutlined />,
-  "/news-manage/category":<AppstoreOutlined />,
-  "/audit-manage":<AuditOutlined />,
-  "/publish-manage":<FormOutlined />,
+  "/home": <HomeOutlined />,
+  "/user-manage": <UserOutlined />,
+  "/user-manage/list": <UserOutlined />,
+  "/right-manage": <PicRightOutlined />,
+  "/right-manage/role/list": <UsergroupDeleteOutlined />,
+  "/right-manage/right/list": <AppstoreOutlined />,
+  "/news-manage": <MessageOutlined />,
+  "/news-manage/add": <EditOutlined />,
+  "/news-manage/draft": <CloseCircleOutlined />,
+  "/news-manage/category": <AppstoreOutlined />,
+  "/audit-manage": <AuditOutlined />,
+  "/publish-manage": <FormOutlined />,
 }
 
 
 function SideMenu(props) {
   const [meun, setMeun] = useState([])
-  useEffect(()=>{
-    axios.get("http://localhost:5000/rights?_embed=children").then(res=>{
-      console.log(res.data)
+  useEffect(() => {
+    axios.get("http://localhost:5000/rights?_embed=children").then(res => {
       setMeun(res.data)
     })
-  },[])
+  }, [])
 
-
-  const checkPagePermission = (item)=>{
-    return item.pagepermisson
+  // 当前登录用户所具备的权限rights
+  const { role: { rights } } = JSON.parse(localStorage.getItem('token'))
+  // 管理权限
+  const checkPagePermission = (item) => {
+    return item.pagepermisson && rights.includes(item.key)
   }
-  const renderMenu = (menuList)=>{
-    return menuList.map(item=>{
-      if(item.children?.length>0 && checkPagePermission(item)){
+
+  const renderMenu = (menuList) => {
+    return menuList.map(item => {
+      if (item.children?.length > 0 && checkPagePermission(item)) {
         return <SubMenu key={item.key} icon={iconList[item.key]} title={item.title}>
-           { renderMenu(item.children) }
+          {renderMenu(item.children)}
         </SubMenu>
       }
 
-      return checkPagePermission(item) && <Menu.Item key={item.key} icon={iconList[item.key]}  onClick={()=>{
-        //  console.log(props)
+      return checkPagePermission(item) && <Menu.Item key={item.key} icon={iconList[item.key]} onClick={() => {
         props.history.push(item.key)
       }}>{item.title}</Menu.Item>
     })
   }
 
-  // console.log(props.location.pathname)
   const selectKeys = [props.location.pathname]
-  const openKeys = ["/"+props.location.pathname.split("/")[1]]
+  const openKeys = ["/" + props.location.pathname.split("/")[1]]
   return (
     <Sider trigger={null} collapsible collapsed={false} >
-      <div style={{display:"flex",height:"100%","flexDirection":"column"}}>
+      <div style={{ display: "flex", height: "100%", "flexDirection": "column" }}>
         <div className="logo" >后台管理系统</div>
-        <div style={{flex:1,"overflow":"auto"}}>
+        <div style={{ flex: 1, "overflow": "auto" }}>
           <Menu theme="dark" mode="inline" selectedKeys={selectKeys} className="aaaaaaa" defaultOpenKeys={openKeys}>
-              {renderMenu(meun)}
+            {renderMenu(meun)}
           </Menu>
         </div>
       </div>
