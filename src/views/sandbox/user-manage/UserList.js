@@ -26,8 +26,15 @@ export default function UserList() {
     const addForm = useRef(null)
     const updateForm = useRef(null)
 
+    const { roleId, region, username } = JSON.parse(localStorage.getItem('token'))
+
     // 获取用户列表
     useEffect(() => {
+        const roleObj = {
+            '1': 'superadmin',
+            '2': 'admin',
+            '3': 'editor',
+        }
         setLoading(true);
         fetchUserListApi.then(res => {
             const dataList = res.data
@@ -36,10 +43,15 @@ export default function UserList() {
                     item.children = ""
                 }
             })
-            setDataSource(dataList)
+            // 用户权限筛选，超级管理员能查看全部用户，区域管理员能查看自己和该区域的区域编辑
+            setDataSource(roleObj[roleId] === 'superadmin' ? dataList : [
+                ...dataList.filter(item1 => item1.username === username),
+                ...dataList.filter(item2 => item2.region === region && roleObj[item2.roleId] === 'editor'),
+            ])
             setLoading(false);
         })
-    }, [])
+    }, [roleId, region, username])
+
     // 获取角色列表
     useEffect(() => {
         fetchRoleListApi.then(res => {
@@ -241,7 +253,14 @@ export default function UserList() {
                 }}
                 onOk={() => { updateFormOK() }}
             >
-                <UserForm isUpdateDisabled={isUpdateDisabled} ref={updateForm} roleList={roleList} regionList={regionList}></UserForm>
+                <UserForm
+                    ref={updateForm}
+                    roleList={roleList}
+                    regionList={regionList}
+                    isUpdateDisabled={isUpdateDisabled}
+                    isUpdate = {true}
+                >
+                </UserForm>
             </Modal>
         </div>
     )

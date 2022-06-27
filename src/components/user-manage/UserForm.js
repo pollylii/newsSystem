@@ -14,43 +14,51 @@ const UserForm = forwardRef((props, ref) => {
         setisDisabled(props.isUpdateDisabled)
     }, [props.isUpdateDisabled])
 
-    // const { roleId, region } = JSON.parse(localStorage.getItem("token"))
-    // const roleObj = {
-    //     "1": "superadmin",
-    //     "2": "admin",
-    //     "3": "editor"
-    // }
-    // const checkRegionDisabled = (item) => {
-    //     if (props.isUpdate) {
-    //         if (roleObj[roleId] === "superadmin") {
-    //             return false
-    //         } else {
-    //             return true
-    //         }
-    //     } else {
-    //         if (roleObj[roleId] === "superadmin") {
-    //             return false
-    //         } else {
-    //             return item.value !== region
-    //         }
-    //     }
-    // }
+    const { roleId, region } = JSON.parse(localStorage.getItem("token"))
+    const roleObj = {
+        "1": "superadmin",
+        "2": "admin",
+        "3": "editor"
+    }
 
-    // const checkRoleDisabled = (item) => {
-    //     if (props.isUpdate) {
-    //         if (roleObj[roleId] === "superadmin") {
-    //             return false
-    //         } else {
-    //             return true
-    //         }
-    //     } else {
-    //         if (roleObj[roleId] === "superadmin") {
-    //             return false
-    //         } else {
-    //             return roleObj[item.id] !== "editor"
-    //         }
-    //     }
-    // }
+    const checkRegionDisabled = (item) => {
+        // 更新功能
+        if (props.isUpdate) {
+            // 只有超级管理员才能更新修改区域
+            if (roleObj[roleId] === "superadmin") {
+                return false
+            } else {
+                return true
+            }
+        } else {
+            // 添加功能
+            if (roleObj[roleId] === "superadmin") {
+                return false
+            } else {
+                // 区域管理员只能添加自己所在区域的用户，不是自己区域的选项都禁用
+                return item.value !== region
+            }
+        }
+    }
+    
+    const checkRoleDisabled = (item) => {
+        // 更新功能
+        if (props.isUpdate) {
+            // 只有超级管理员才能更新修改区域
+            if (roleObj[roleId] === "superadmin") {
+                return false
+            } else {
+                return true
+            }
+        } else {
+            // 添加功能
+            if (roleObj[roleId] === "superadmin") {
+                return false
+            } else {
+                return roleObj[item.id] !== "editor"
+            }
+        }
+    }
 
     return (
         <Form layout="vertical" ref={ref}>
@@ -86,7 +94,9 @@ const UserForm = forwardRef((props, ref) => {
                     {
                         regionList.map(item => {
                             return (
-                                <Option value={item.title} key={item.id} >{item.title}</Option>
+                                <Option value={item.title} key={item.id} disabled={checkRegionDisabled(item)}>
+                                    {item.title}
+                                </Option>
                             )
                         })
                     }
@@ -114,7 +124,9 @@ const UserForm = forwardRef((props, ref) => {
                     {
                         roleList.map(item => {
                             return (
-                                <Option value={item.id} key={item.id}>{item.roleName}</Option>
+                                <Option value={item.id} key={item.id} disabled={checkRoleDisabled(item)}>
+                                    {item.roleName}
+                                </Option>
                             )
                         })
                     }
