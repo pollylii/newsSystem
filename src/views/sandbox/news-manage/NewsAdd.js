@@ -1,8 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react'
-import { PageHeader, Steps, Button, Form, Input, Select, message,notification } from 'antd'
+import { PageHeader, Steps, Button, Form, Input, Select, message, notification } from 'antd'
 import style from './News.module.css'
 import axios from 'axios'
-import NewsEditor from '../../../components/news-manage/NewsEditor';
+import NewsEditor from '@/components/news-manage/NewsEditor';
 const { Step } = Steps;
 const { Option } = Select;
 
@@ -56,7 +56,7 @@ export default function NewsAdd(props) {
         axios.post('/news', {
             ...formInfo,
             "content": content,
-            "region": User.region?User.region:"全球",
+            "region": User.region ? User.region : "全球",
             "author": User.username,
             "roleId": User.roleId,
             "auditState": auditState,
@@ -65,14 +65,14 @@ export default function NewsAdd(props) {
             "star": 0,
             "view": 0,
             // "publishTime": 0
-        }).then(res=>{
-            props.history.push(auditState===0?'/news-manage/draft':'/audit-manage/list')
+        }).then(res => {
+            props.history.push(auditState === 0 ? '/news-manage/draft' : '/audit-manage/list')
 
             notification.info({
                 message: `通知`,
                 description:
-                  `您可以到${auditState===0?'草稿箱':'审核列表'}中查看您的新闻`,
-                placement:"bottomRight"
+                    `您可以到${auditState === 0 ? '草稿箱' : '审核列表'}中查看您的新闻`,
+                placement: "bottomRight"
             });
         })
     }

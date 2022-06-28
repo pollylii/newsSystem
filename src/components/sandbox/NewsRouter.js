@@ -1,24 +1,23 @@
 import React, { useEffect, useState } from 'react'
-import Home from '../../views/sandbox/home/Home'
-import Nopermission from '../../views/sandbox/nopermission/Nopermission'
-import RightList from '../../views/sandbox/right-manage/RightList'
-import RoleList from '../../views/sandbox/right-manage/RoleList'
-import UserList from '../../views/sandbox/user-manage/UserList'
 import { Switch, Route, Redirect } from 'react-router-dom'
-import NewsAdd from '../../views/sandbox/news-manage/NewsAdd'
-import NewsDraft from '../../views/sandbox/news-manage/NewsDraft'
-import NewsCategory from '../../views/sandbox/news-manage/NewsCategory'
-import Audit from '../../views/sandbox/audit-manage/Audit'
-import AuditList from '../../views/sandbox/audit-manage/AuditList'
-import Unpublished from '../../views/sandbox/publish-manage/Unpublished'
-import Published from '../../views/sandbox/publish-manage/Published'
-import Sunset from '../../views/sandbox/publish-manage/Sunset'
 import axios from 'axios'
-import NewsPreview from '../../views/sandbox/news-manage/NewsPreview'
-import NewsUpdate from '../../views/sandbox/news-manage/NewsUpdate'
-import {Spin } from 'antd'
 
-import {connect} from 'react-redux'
+import Home from '@/views/sandbox/home/Home'
+import Nopermission from '@/views/sandbox/nopermission/Nopermission'
+import RightList from '@/views/sandbox/right-manage/RightList'
+import RoleList from '@/views/sandbox/right-manage/RoleList'
+import UserList from '@/views/sandbox/user-manage/UserList'
+import NewsAdd from '@/views/sandbox/news-manage/NewsAdd'
+import NewsDraft from '@/views/sandbox/news-manage/NewsDraft'
+import NewsCategory from '@/views/sandbox/news-manage/NewsCategory'
+import NewsPreview from '@/views/sandbox/news-manage/NewsPreview'
+import NewsUpdate from '@/views/sandbox/news-manage/NewsUpdate'
+import Audit from '@/views/sandbox/audit-manage/Audit'
+import AuditList from '@/views/sandbox/audit-manage/AuditList'
+import Unpublished from '@/views/sandbox/publish-manage/Unpublished'
+import Published from '@/views/sandbox/publish-manage/Published'
+import Sunset from '@/views/sandbox/publish-manage/Sunset'
+
 const LocalRouterMap = {
     "/home": Home,
     "/user-manage/list": UserList,
@@ -36,17 +35,14 @@ const LocalRouterMap = {
     "/publish-manage/sunset": Sunset
 }
 
-function NewsRouter(props) {
-
+export default function NewsRouter() {
     const [BackRouteList, setBackRouteList] = useState([])
     useEffect(() => {
         Promise.all([
-            axios.get("/rights"),
-            axios.get("/children"),
+            axios.get('http://localhost:5000/rights'),
+            axios.get('http://localhost:5000/children')
         ]).then(res => {
-            // console.log(res)
             setBackRouteList([...res[0].data, ...res[1].data])
-            // console.log(BackRouteList)
         })
     }, [])
 
@@ -61,29 +57,26 @@ function NewsRouter(props) {
     }
 
     return (
-        <Spin size="large" spinning={props.isLoading}>
-            <Switch>
-                {
-                    BackRouteList.map(item => {
-                        if (checkRoute(item) && checkUserPermission(item)) {
-                            return <Route path={item.key} key={item.key} component={LocalRouterMap[item.key]} exact />
-                        }
-                        return null
+        <Switch>
+            {
+                BackRouteList.map(item => {
+                    if (checkRoute(item) && checkUserPermission(item)) {
+                        return <Route path={item.key} key={item.key} component={LocalRouterMap[item.key]} exact />
                     }
-                    )
-                }
+                    return null
+                })
+            }
 
-                <Redirect from="/" to="/home" exact />
-                {
-                    BackRouteList.length > 0 && <Route path="*" component={Nopermission} />
-                }
-            </Switch>
-        </Spin>
+            {/* <Route path="/home" component={Home} />
+            <Route path="/user-manage/list" component={UserList} />
+            <Route path="/right-manage/role/list" component={RoleList} />
+            <Route path="/right-manage/right/list" component={RightList} /> */}
+
+            <Redirect from="/" to="/home" exact />
+            {
+                BackRouteList.length > 0 && <Route path="*" component={Nopermission} />
+            }
+
+        </Switch>
     )
 }
-
-const mapStateToProps = ({LoadingReducer:{isLoading}})=>({
-    isLoading
-  })
-
-export default connect(mapStateToProps)(NewsRouter)

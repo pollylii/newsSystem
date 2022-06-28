@@ -1,21 +1,22 @@
-import React from 'react'
-import { Switch, Route, Redirect } from 'react-router-dom'
-import SideMenu from '../../components/sandbox/SideMenu'
-import TopHeader from '../../components/sandbox/TopHeader'
-import Home from './home/Home'
-import Nopermission from './nopermission/Nopermission'
-import RightList from './right-manage/RightList'
-import RoleList from './right-manage/RoleList'
-import UserList from './user-manage/UserList'
-
+import React, { useEffect } from 'react'
+import SideMenu from '@/components/sandbox/SideMenu'
+import TopHeader from '@/components/sandbox/TopHeader'
+import NewsRouter from '@/components/sandbox/NewsRouter'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 //css
 import './NewsSandBox.css'
-
 //antd
 import { Layout } from 'antd'
-const {Content} = Layout
+const { Content } = Layout
 
 export default function NewsSandBox() {
+    // 顶部进度条渲染开始
+    NProgress.start()
+    useEffect(() => {
+        // 顶部进度条渲染结束
+        NProgress.done()
+    })
     return (
         <Layout>
             <SideMenu></SideMenu>
@@ -27,18 +28,10 @@ export default function NewsSandBox() {
                         margin: '24px 16px',
                         padding: 24,
                         minHeight: 280,
-                        overflow:'auto'
+                        overflow: 'auto'
                     }}
                 >
-                    <Switch>
-                        <Route path="/home" component={Home} />
-                        <Route path="/user-manage/list" component={UserList} />
-                        <Route path="/right-manage/role/list" component={RoleList} />
-                        <Route path="/right-manage/right/list" component={RightList} />
-
-                        <Redirect from="/" to="/home" exact />
-                        <Route path="*" component={Nopermission} />
-                    </Switch>
+                    <NewsRouter></NewsRouter>
                 </Content>
             </Layout>
         </Layout>
