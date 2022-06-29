@@ -103,7 +103,7 @@ export default function NewsAdd(props) {
                         <Form.Item
                             label="新闻标题"
                             name="title"
-                            rules={[{ required: true, message: 'Please input your username!' }]}
+                            rules={[{ required: true, message: '请输入新闻标题' }]}
                         >
                             <Input />
                         </Form.Item>
@@ -111,7 +111,7 @@ export default function NewsAdd(props) {
                         <Form.Item
                             label="新闻分类"
                             name="categoryId"
-                            rules={[{ required: true, message: 'Please input your username!' }]}
+                            rules={[{ required: true, message: '请输入新闻分类' }]}
                         >
                             <Select>
                                 {
